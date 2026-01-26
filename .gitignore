@@ -49,3 +49,4 @@ cache/
 artifacts/
 out/
 .soroban/
+tarpaulin-report.html
