@@ -1,4 +1,4 @@
 packages:
-  - 'apps/node/*'
-  - 'libs/node/*'
+  - 'apps/*'
+  - 'libs/*'
   - 'packages/*'
