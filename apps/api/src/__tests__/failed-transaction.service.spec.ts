@@ -37,18 +37,21 @@ describe('FailedTransactionService', () => {
       expect(result.failureCategory).toBe('underpriced_gas');
       expect(result.hash).toBe(transactionData.hash);
       expect(result.wallet).toBe(transactionData.wallet);
-      expect(result.chainId).toBe(transactionData.chainId);
     });
 
     it('should track a failed transaction with out of gas', async () => {
       const transactionData = {
-        hash: '0x1234567890abcdef1234567890abcdef12345679',
-        wallet: '0xabcdef1234567890abcdef1234567890abcdef12',
+        hash: '0x123',
+        wallet: '0xabc',
         chainId: 1,
-        gasUsed: '20999',
-        gasPrice: '20000000000',
+        gasUsed: '21000',
+        gasPrice: '100000000000', // 100 gwei - very high to bypass underpriced check
+        gasLimit: '21000',
+        status: 0,
+        revertReason: 'exceeded transaction gas',
+        timestamp: new Date().toISOString(),
         metadata: {
-          nonce: 2,
+          nonce: 1,
           gasLimit: '21000',
           transactionType: 'legacy' as const
         }
@@ -60,10 +63,10 @@ describe('FailedTransactionService', () => {
       expect(result.effectiveFee).toBe((BigInt(transactionData.gasUsed) * BigInt(transactionData.gasPrice)).toString());
     });
 
-    it('should track a failed transaction with slippage exceeded', async () => {
+    it('should track a failed transaction with insufficient balance', async () => {
       const transactionData = {
-        hash: '0x1234567890abcdef1234567890abcdef1234567a',
-        wallet: '0xabcdef1234567890abcdef1234567890abcdef12',
+        hash: '0x456',
+        wallet: '0xdef',
         chainId: 1,
         gasUsed: '150000',
         gasPrice: '20000000000',

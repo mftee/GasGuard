@@ -9,7 +9,10 @@
     "start": "nest start",
     "start:dev": "NODE_OPTIONS='--no-deprecation' nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "start:prod": "node dist/main",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.0",

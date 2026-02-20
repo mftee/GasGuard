@@ -4,9 +4,11 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ExampleController } from './example/example.controller';
 import { FailedTransactionController } from './controllers/failed-transaction.controller';
+import { CrossChainGasController } from './controllers/cross-chain-gas.controller';
 import { FailedTransactionService } from './services/failed-transaction.service';
 import { MitigationService } from './services/mitigation.service';
 import { TransactionAnalysisService } from './services/transaction-analysis.service';
+import { CrossChainGasService } from './services/cross-chain-gas.service';
 
 @Module({
     imports: [
@@ -23,6 +25,7 @@ import { TransactionAnalysisService } from './services/transaction-analysis.serv
         AppController,
         ExampleController,
         FailedTransactionController,
+        CrossChainGasController,
         // Add your controllers here - remember to add @Version('1') decorator
     ],
     providers: [
@@ -34,6 +37,7 @@ import { TransactionAnalysisService } from './services/transaction-analysis.serv
         FailedTransactionService,
         MitigationService,
         TransactionAnalysisService,
+        CrossChainGasService,
     ],
 })
 export class AppModule { }
