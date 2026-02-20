@@ -2,6 +2,11 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { ExampleController } from './example/example.controller';
+import { FailedTransactionController } from './controllers/failed-transaction.controller';
+import { FailedTransactionService } from './services/failed-transaction.service';
+import { MitigationService } from './services/mitigation.service';
+import { TransactionAnalysisService } from './services/transaction-analysis.service';
 
 @Module({
     imports: [
@@ -14,25 +19,21 @@ import { AppController } from './app.controller';
             },
         ]),
     ],
-    controllers: [AppController],
+    controllers: [
+        AppController,
+        ExampleController,
+        FailedTransactionController,
+        // Add your controllers here - remember to add @Version('1') decorator
+    ],
     providers: [
         // Apply ThrottlerGuard globally to all routes
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard,
         },
+        FailedTransactionService,
+        MitigationService,
+        TransactionAnalysisService,
     ],
 })
 export class AppModule { }
-
-import { ExampleController } from './example/example.controller';
-
-@Module({
-  imports: [],
-  controllers: [
-    ExampleController,
-    // Add your controllers here - remember to add @Version('1') decorator
-  ],
-  providers: [],
-})
-export class AppModule {}
