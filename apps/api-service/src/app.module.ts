@@ -7,6 +7,7 @@ import { RulesModule } from './rules/rules.module';
 import { DatabaseModule } from './database/database.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ReportsModule } from './reports/reports.module';
+import { OptimizationModule } from './optimization/optimization.module';
 import databaseConfig from './config/database.config';
 
 @Module({
@@ -21,7 +22,8 @@ import databaseConfig from './config/database.config';
     AnalyzerModule, 
     RulesModule,
     AnalyticsModule,
-    ReportsModule
+    ReportsModule,
+    OptimizationModule
   ],
 })
 export class AppModule {}
