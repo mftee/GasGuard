@@ -7,6 +7,7 @@ import {
   Chain, 
   AnalysisResult 
 } from './entities';
+import { ChainPerformanceMetric } from '../chain-reliability/entities/chain-performance-metric.entity';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import {
         username: configService.get('DATABASE_USERNAME', 'postgres'),
         password: configService.get('DATABASE_PASSWORD', 'postgres'),
         database: configService.get('DATABASE_NAME', 'gasguard'),
-        entities: [Transaction, Merchant, Chain, AnalysisResult],
+        entities: [Transaction, Merchant, Chain, AnalysisResult, ChainPerformanceMetric],
         synchronize: configService.get('DATABASE_SYNCHRONIZE', false), // Should be false in production
         logging: configService.get('DATABASE_LOGGING', false),
         maxQueryExecutionTime: 1000, // Log queries taking longer than 1 second
@@ -27,7 +28,7 @@ import {
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([Transaction, Merchant, Chain, AnalysisResult]),
+    TypeOrmModule.forFeature([Transaction, Merchant, Chain, AnalysisResult, ChainPerformanceMetric]),
   ],
   exports: [TypeOrmModule],
 })
