@@ -10,6 +10,7 @@ import { FailedTransactionService } from './services/failed-transaction.service'
 import { MitigationService } from './services/mitigation.service';
 import { TransactionAnalysisService } from './services/transaction-analysis.service';
 import { CrossChainGasService } from './services/cross-chain-gas.service';
+import { RateLimitingModule, RateLimitGuard } from './rate-limiting';
 import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
 
 @Module({
@@ -19,16 +20,17 @@ import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
             isGlobal: true,
             envFilePath: ['.env', '.env.local'],
         }),
-        // Configure rate limiting: 10 requests per 60 seconds per IP
         ThrottlerModule.forRoot([
             {
                 name: 'default',
                 ttl: 60000,  // 60 seconds in milliseconds
-                limit: 10,   // 10 requests per TTL window
+                limit: 100,  // 100 requests per TTL window (generous fallback)
             },
         ]),
         // JWT Authentication module
         AuthModule,
+        // New Redis-based rate limiting module
+        RateLimitingModule.forRoot(),
     ],
     controllers: [
         AppController,
@@ -38,10 +40,10 @@ import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
         // Add your controllers here - remember to add @Version('1') decorator
     ],
     providers: [
-        // Apply ThrottlerGuard globally to all routes
+        // Apply RateLimitGuard globally for per-API key rate limiting
         {
             provide: APP_GUARD,
-            useClass: ThrottlerGuard,
+            useClass: RateLimitGuard,
         },
         // Apply JWT authentication guard globally to all routes
         {

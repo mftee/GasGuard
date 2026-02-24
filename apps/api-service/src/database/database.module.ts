@@ -5,7 +5,8 @@ import {
   Transaction, 
   Merchant, 
   Chain, 
-  AnalysisResult 
+  AnalysisResult,
+  User,
 } from './entities';
 import { ChainPerformanceMetric } from '../chain-reliability/entities/chain-performance-metric.entity';
 import { ApiPerformanceMetric, ApiPerformanceAggregate } from '../performance-monitoring/entities/api-performance-metric.entity';
@@ -27,6 +28,7 @@ import { GasSubsidyCap, GasSubsidyUsageLog, GasSubsidyAlert, SuspiciousUsageFlag
           Merchant, 
           Chain, 
           AnalysisResult, 
+          User,
           ChainPerformanceMetric,
           ApiPerformanceMetric,
           ApiPerformanceAggregate,
@@ -47,6 +49,7 @@ import { GasSubsidyCap, GasSubsidyUsageLog, GasSubsidyAlert, SuspiciousUsageFlag
       Merchant, 
       Chain, 
       AnalysisResult, 
+      User,
       ChainPerformanceMetric,
       ApiPerformanceMetric,
       ApiPerformanceAggregate,
