@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ExampleController } from './example/example.controller';
@@ -9,9 +10,15 @@ import { FailedTransactionService } from './services/failed-transaction.service'
 import { MitigationService } from './services/mitigation.service';
 import { TransactionAnalysisService } from './services/transaction-analysis.service';
 import { CrossChainGasService } from './services/cross-chain-gas.service';
+import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
 
 @Module({
     imports: [
+        // Global configuration module for environment variables
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: ['.env', '.env.local'],
+        }),
         // Configure rate limiting: 10 requests per 60 seconds per IP
         ThrottlerModule.forRoot([
             {
@@ -20,6 +27,8 @@ import { CrossChainGasService } from './services/cross-chain-gas.service';
                 limit: 10,   // 10 requests per TTL window
             },
         ]),
+        // JWT Authentication module
+        AuthModule,
     ],
     controllers: [
         AppController,
@@ -33,6 +42,16 @@ import { CrossChainGasService } from './services/cross-chain-gas.service';
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard,
+        },
+        // Apply JWT authentication guard globally to all routes
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        // Apply roles guard globally for RBAC enforcement
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard,
         },
         FailedTransactionService,
         MitigationService,
