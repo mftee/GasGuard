@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ExampleController } from './example/example.controller';
 import { FailedTransactionController } from './controllers/failed-transaction.controller';
@@ -9,17 +9,20 @@ import { FailedTransactionService } from './services/failed-transaction.service'
 import { MitigationService } from './services/mitigation.service';
 import { TransactionAnalysisService } from './services/transaction-analysis.service';
 import { CrossChainGasService } from './services/cross-chain-gas.service';
+import { RateLimitingModule, RateLimitGuard } from './rate-limiting';
 
 @Module({
     imports: [
-        // Configure rate limiting: 10 requests per 60 seconds per IP
+        // Legacy throttler as backup (disabled by default, can be enabled via env)
         ThrottlerModule.forRoot([
             {
                 name: 'default',
                 ttl: 60000,  // 60 seconds in milliseconds
-                limit: 10,   // 10 requests per TTL window
+                limit: 100,  // 100 requests per TTL window (generous fallback)
             },
         ]),
+        // New Redis-based rate limiting module
+        RateLimitingModule.forRoot(),
     ],
     controllers: [
         AppController,
@@ -29,10 +32,10 @@ import { CrossChainGasService } from './services/cross-chain-gas.service';
         // Add your controllers here - remember to add @Version('1') decorator
     ],
     providers: [
-        // Apply ThrottlerGuard globally to all routes
+        // Apply RateLimitGuard globally for per-API key rate limiting
         {
             provide: APP_GUARD,
-            useClass: ThrottlerGuard,
+            useClass: RateLimitGuard,
         },
         FailedTransactionService,
         MitigationService,
