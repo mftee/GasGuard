@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { ExampleController } from './example/example.controller';
 import { FailedTransactionController } from './controllers/failed-transaction.controller';
@@ -10,10 +11,15 @@ import { MitigationService } from './services/mitigation.service';
 import { TransactionAnalysisService } from './services/transaction-analysis.service';
 import { CrossChainGasService } from './services/cross-chain-gas.service';
 import { RateLimitingModule, RateLimitGuard } from './rate-limiting';
+import { AuthModule, JwtAuthGuard, RolesGuard } from './auth';
 
 @Module({
     imports: [
-        // Legacy throttler as backup (disabled by default, can be enabled via env)
+        // Global configuration module for environment variables
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: ['.env', '.env.local'],
+        }),
         ThrottlerModule.forRoot([
             {
                 name: 'default',
@@ -21,6 +27,8 @@ import { RateLimitingModule, RateLimitGuard } from './rate-limiting';
                 limit: 100,  // 100 requests per TTL window (generous fallback)
             },
         ]),
+        // JWT Authentication module
+        AuthModule,
         // New Redis-based rate limiting module
         RateLimitingModule.forRoot(),
     ],
@@ -36,6 +44,16 @@ import { RateLimitingModule, RateLimitGuard } from './rate-limiting';
         {
             provide: APP_GUARD,
             useClass: RateLimitGuard,
+        },
+        // Apply JWT authentication guard globally to all routes
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        // Apply roles guard globally for RBAC enforcement
+        {
+            provide: APP_GUARD,
+            useClass: RolesGuard,
         },
         FailedTransactionService,
         MitigationService,
