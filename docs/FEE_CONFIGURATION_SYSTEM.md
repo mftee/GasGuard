@@ -302,6 +302,8 @@ PUT /admin/fee-configuration/settings
   "requireApprovalForLargeChanges": true,
   "largeChangeThreshold": 25,
   "approvalRequiredUsers": ["admin-1", "admin-2"],
+  "multisigSigners": ["admin-1", "admin-2", "admin-3"],
+  "multisigApprovalThreshold": 2,
   "defaultGracePeriod": 7,
   "enableUserNotifications": true,
   "notificationChannels": ["email", "in-app"],
@@ -402,11 +404,20 @@ feeConfigurationService.on('userNotification', (notification) => {
 
 For large changes (configurable threshold):
 
-1. **Detection** - System detects change > threshold
-2. **Notification** - Alert required approvers
-3. **Approval** - Designated admins approve/reject
-4. **Implementation** - Change applied after approval
-5. **Audit** - Full audit trail maintained
+1. **Define signers** - Configure `multisigSigners` and `multisigApprovalThreshold`
+2. **Detection** - System detects change > threshold
+3. **Request** - A multisig approval request is created
+4. **Approval** - Designated signers approve the request
+5. **Implementation** - Change is applied only after threshold approvals
+6. **Audit** - Full audit trail is maintained
+
+### Approval endpoints
+
+- `POST /admin/fee-configuration/:configId/approval-requests`
+- `GET /admin/fee-configuration/approval-requests`
+- `GET /admin/fee-configuration/approval-requests/:requestId`
+- `POST /admin/fee-configuration/approval-requests/:requestId/approve`
+- `POST /admin/fee-configuration/approval-requests/:requestId/reject`
 
 ### Rate Limiting
 
