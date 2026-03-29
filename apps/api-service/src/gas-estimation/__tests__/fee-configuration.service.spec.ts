@@ -436,6 +436,55 @@ describe("FeeConfigurationService", () => {
     });
   });
 
+  describe("timelock delay", () => {
+    beforeEach(async () => {
+      await service.updateAdminSettings(
+        {
+          timelockDelayMinutes: 1,
+        },
+        "admin-user",
+      );
+
+      jest.useFakeTimers({ now: new Date("2026-03-29T12:00:00.000Z") });
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it("should schedule direct updates when the delay has not yet elapsed", async () => {
+      const updateRequest: FeeUpdateRequest = {
+        basePricePerRequest: 0.00002,
+        reason: "Delayed pricing update",
+        notifyUsers: false,
+      };
+
+      const currentConfig = await service.updateConfiguration(
+        "default",
+        updateRequest,
+        "admin-user",
+      );
+
+      expect(currentConfig.basePricePerRequest).toBe(0.00001);
+
+      const scheduledUpdates = await service.getScheduledUpdates("default");
+      expect(scheduledUpdates.length).toBe(1);
+      expect(scheduledUpdates[0].status).toBe("SCHEDULED");
+      expect(scheduledUpdates[0].scheduledAt.toISOString()).toBe(
+        new Date("2026-03-29T12:01:00.000Z").toISOString(),
+      );
+
+      jest.setSystemTime(new Date("2026-03-29T12:02:00.000Z"));
+      const executed = await service.processPendingScheduledUpdates();
+
+      expect(executed.length).toBe(1);
+      expect(executed[0].status).toBe("EXECUTED");
+
+      const updatedConfig = await service.getCurrentConfiguration();
+      expect(updatedConfig.basePricePerRequest).toBe(0.00002);
+    });
+  });
+
   describe("validateUpdateRequest", () => {
     it("should detect large price increases", async () => {
       const currentConfig = await service.getCurrentConfiguration();
