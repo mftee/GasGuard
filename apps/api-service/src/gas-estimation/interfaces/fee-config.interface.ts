@@ -140,6 +140,19 @@ export interface ApprovalRequest {
   notifyUsers: boolean;
 }
 
+export type ScheduledUpdateStatus = "SCHEDULED" | "EXECUTED" | "CANCELLED";
+
+export interface ScheduledUpdate {
+  id: string;
+  configurationId: string;
+  request: FeeUpdateRequest;
+  createdBy: string;
+  scheduledAt: Date;
+  status: ScheduledUpdateStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface FeeConfigurationHistory {
   id: string;
   configurationId: string;
@@ -222,6 +235,7 @@ export interface AdminFeeSettings {
   approvalRequiredUsers: string[]; // Legacy list of admin user IDs required for approval
   multisigSigners: string[]; // Authorized multisig signer user IDs
   multisigApprovalThreshold: number; // Number of signers required to approve large changes
+  timelockDelayMinutes: number; // Minimum delay before upgrade execution
   defaultGracePeriod: number; // days before fee changes take effect
   enableUserNotifications: boolean;
   notificationChannels: ("email" | "sms" | "in-app" | "webhook")[];
